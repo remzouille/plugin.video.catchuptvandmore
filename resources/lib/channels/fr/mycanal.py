@@ -29,7 +29,7 @@ except ImportError:
     # noinspection PyUnresolvedReferences
     from urllib import quote, urlencode
 # noinspection PyUnresolvedReferences
-from codequick import Listitem, Resolver, Route, Script
+from codequick import Listitem, Resolver, Route, Script, utils
 # noinspection PyUnresolvedReferences
 from kodi_six import xbmcgui
 
@@ -688,7 +688,8 @@ def get_live_token(plugin, device_key_id, live_init, pass_token, session_request
 
 @Resolver.register
 def get_live_url(plugin, item_id, **kwargs):
-    if xbmcgui.Dialog().select(Script.localize(30174), ["MyCanal", "Dailymotion"]):
+    livechannel = utils.ensure_unicode(Script.setting['mycanal.livechannel'])
+    if livechannel == "Dailymotion":
         return resolver_proxy.get_stream_dailymotion(plugin, LIVE_DAILYMOTION[item_id], False)
 
     fix_cipher()
