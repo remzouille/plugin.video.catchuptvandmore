@@ -29,31 +29,31 @@ URL_EMISSIONS = URL_ROOT + '/%s/emissions'
 GENERIC_HEADERS = {'User-Agent': web_utils.get_random_ua()}
 
 LIVE_FR3_REGIONS = {
-    "Alpes": "alpes",
-    "Alsace": "alsace",
-    "Aquitaine": "aquitaine",
-    "Auvergne": "auvergne",
-    "Basse-Normandie": "basse-normandie",
-    "Bourgogne": "bourgogne",
-    "Bretagne": "bretagne",
-    "Centre-Val de Loire": "centre",
-    "Chapagne-Ardenne": "champagne-ardenne",
-    "Corse": "corse",
-    "Côte d'Azur": "cote-d-azur",
-    "Franche-Comté": "franche-comte",
-    "Haute-Normandie": "haute-normandie",
-    "Languedoc-Roussillon": "languedoc-roussillon",
-    "Limousin": "limousin",
-    "Lorraine": "lorraine",
-    "Midi-Pyrénées": "midi-pyrenees",
-    "Nord-Pas-de-Calais": "nord-pas-de-calais",
-    "Paris Île-de-France": "paris-ile-de-france",
-    "Pays de la Loire": "pays-de-la-loire",
-    "Picardie": "picardie",
-    "Poitou-Charentes": "poitou-charentes",
-    "Provence-Alpes": "provence-alpes",
-    "Rhône-Alpes": "rhone-alpes",
-    "Nouvelle-Aquitaine": "nouvelle-aquitaine"
+    "Alpes": ["auvergne-rhone-alpes", "alpes"],
+    "Alsace": ["grand-est", "alsace"],
+    "Aquitaine": ["nouvelle-aquitaine", "aquitaine"],
+    "Auvergne": ["auvergne-rhone-alpes", "auvergne"],
+    "Basse-Normandie": ["normandie", "basse-normandie"],
+    "Bourgogne": ["bourgogne-franche-comte", "bourgogne"],
+    "Bretagne": ["bretagne", "bretagne"],
+    "Centre-Val-de-Loire": ["centre-val-de-loire", "centre-val-de-loire"],
+    "Champagne-Ardenne": ["grand-est", "champagne-ardenne"],
+    "Corse ViaStella": ["corse", "corse-via-stella"],
+    "Côte d'azur": ["provence-alpes-cote-d-azur", "cote-d-azur"],
+    "Franche-Comté": ["bourgogne-franche-comte", "franche-comte"],
+    "Haute-Normandie": ["normandie", "haute-normandie"],
+    "Languedoc-Roussillon": ["occitanie", "languedoc-roussillon"],
+    "Limousin": ["nouvelle-aquitaine", "limousin"],
+    "Lorraine": ["grand-est", "lorraine"],
+    "Midi-Pyrénées": ["occitanie", "midi-pyrenees"],
+    "Noa": ["nouvelle-aquitaine", "noa"],
+    "Nord-Pas-de-Calais": ["hauts-de-france", "nord-pas-de-calais"],
+    "Paris-Ile-de-France": ["paris-ile-de-france", "paris-ile-de-france"],
+    "Pays-de-la-Loire": ["pays-de-la-loire", "pays-de-la-loire"],
+    "Picardie": ["hauts-de-france", "picardie"],
+    "Poitou-Charentes": ["nouvelle-aquitaine", "poitou-charentes"],
+    "Provence-Alpes": ["provence-alpes-cote-d-azur", "provence-alpes"],
+    "Rhône-Alpes": ["auvergne-rhone-alpes", "rhone-alpes"],
 }
 
 CORRECT_MONTH = {
@@ -157,30 +157,8 @@ def get_video_url(plugin,
 
 @Resolver.register
 def get_live_url(plugin, item_id, **kwargs):
-    resp = urlquick.get(URL_PROGRAMMES, headers=GENERIC_HEADERS, max_age=-1)
-    root = resp.parse()
-    region = []
-    url_region = []
-    for place in root.iterfind(".//li[@class='program_home__regionList__item']"):
-        available_region = place.find('.//a').get('href')
-        url_region.append(available_region)
-        region.append(place.find('.//span').text.strip())
-
-    choice = url_region[xbmcgui.Dialog().select(Script.localize(30158), region)]
-    resp = urlquick.get(choice, headers=GENERIC_HEADERS, max_age=-1)
-    root = resp.parse()
-
-    region = []
-    url_region = []
-    for old in root.iterfind(".//li[@class='direct-item ']"):
-        url_region.append(URL_ROOT + old.find(".//a").get('href'))
-        place = re.compile(r'France 3 (.*?)$').findall(old.find('.//img').get('alt'))[0]
-        region.append(place)
-
-    if len(region) > 1:
-        choice = url_region[xbmcgui.Dialog().select(Script.localize(30182), region)]
-    else:
-        choice = url_region[0]
+    region = utils.ensure_unicode(Script.setting['france3regions.language'])
+    choice = "https://france3-regions.francetvinfo.fr/%s/direct/%s" % tuple(LIVE_FR3_REGIONS[region])
 
     resp = urlquick.get(choice, headers=GENERIC_HEADERS, max_age=-1)
     root = resp.parse()
