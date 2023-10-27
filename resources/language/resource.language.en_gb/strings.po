@@ -409,6 +409,10 @@ msgctxt "#30175"
 msgid "Equidia Racing: Choose race"
 msgstr ""
 
+msgctxt "#30176"
+msgid "Mycanal: Choose live channel"
+msgstr ""
+
 msgctxt "#30177"
 msgid "TV5 monde: Choose region"
 msgstr ""
